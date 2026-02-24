@@ -1,0 +1,102 @@
+{
+  "records": [
+    {
+      "date": "2026-02-24",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1853.7,
+      "price_end": 1824.08,
+      "price_change_pct": -1.598,
+      "direction": "down",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852692"
+    },
+    {
+      "date": "2026-02-23",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1954.19,
+      "price_end": 1853.7,
+      "price_change_pct": -5.143,
+      "direction": "down",
+      "volatility_level": "high",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852659"
+    },
+    {
+      "date": "2026-02-22",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1973.66,
+      "price_end": 1954.19,
+      "price_change_pct": -0.987,
+      "direction": "down",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852624"
+    },
+    {
+      "date": "2026-02-21",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1967.81,
+      "price_end": 1973.66,
+      "price_change_pct": 0.297,
+      "direction": "up",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852587"
+    },
+    {
+      "date": "2026-02-20",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1946.91,
+      "price_end": 1967.81,
+      "price_change_pct": 1.074,
+      "direction": "up",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852551"
+    },
+    {
+      "date": "2026-02-19",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1954.75,
+      "price_end": 1946.91,
+      "price_change_pct": -0.401,
+      "direction": "down",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852511"
+    },
+    {
+      "date": "2026-02-18",
+      "time_5min_window": "06:30-06:35",
+      "price_start": 1992.0,
+      "price_end": 1954.75,
+      "price_change_pct": -1.87,
+      "direction": "down",
+      "volatility_level": "low",
+      "volume": null,
+      "market_condition": "normal",
+      "special_events": [],
+      "notes": "Automatically collected from CoinGecko",
+      "recorded_at": "2026-02-24T20:59:42.852444"
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "Polymarket Strategy Assistant",
+  "version": "1.0.0",
+  "description": "Data-driven trading assistant for Polymarket prediction markets",
+  "permissions": [
+    "storage",
+    "notifications",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://polymarket.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://polymarket.com/*"],
+      "js": ["content/content.js"],
+      "css": ["content/styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["data/*"],
+      "matches": ["https://polymarket.com/*"]
+    }
+  ]
+}

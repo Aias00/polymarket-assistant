@@ -1,0 +1,10 @@
+/* Polymarket Strategy Assistant - Content Script Styles */
+/* Note: Most styles are injected via Shadow DOM, this file is for any global overrides */
+
+#pma-shadow-host,
+#pma-filter-host,
+#pma-risk-host {
+    position: fixed;
+    z-index: 2147483647;
+    pointer-events: auto;
+}

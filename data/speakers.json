@@ -1,0 +1,237 @@
+{
+  "records": [
+    {
+      "name": "Donald Trump",
+      "keywords": {
+        "crypto": {
+          "total_events": 20,
+          "mentions": 2,
+          "base_rate": 0.10,
+          "contexts": {
+            "regular": {"total": 15, "mentions": 0, "rate": 0.0},
+            "focused": {"total": 5, "mentions": 2, "rate": 0.4}
+          }
+        },
+        "bitcoin": {
+          "total_events": 18,
+          "mentions": 3,
+          "base_rate": 0.167,
+          "contexts": {
+            "regular": {"total": 12, "mentions": 1, "rate": 0.083},
+            "focused": {"total": 6, "mentions": 2, "rate": 0.333}
+          }
+        },
+        "tariff": {
+          "total_events": 25,
+          "mentions": 8,
+          "base_rate": 0.32,
+          "contexts": {
+            "regular": {"total": 18, "mentions": 4, "rate": 0.222},
+            "focused": {"total": 7, "mentions": 4, "rate": 0.571}
+          }
+        },
+        "china": {
+          "total_events": 22,
+          "mentions": 6,
+          "base_rate": 0.273,
+          "contexts": {
+            "regular": {"total": 16, "mentions": 3, "rate": 0.188},
+            "focused": {"total": 6, "mentions": 3, "rate": 0.5}
+          }
+        }
+      }
+    },
+    {
+      "name": "Jerome Powell",
+      "keywords": {
+        "interest rate": {
+          "total_events": 30,
+          "mentions": 25,
+          "base_rate": 0.833,
+          "contexts": {
+            "regular": {"total": 20, "mentions": 15, "rate": 0.75},
+            "focused": {"total": 10, "mentions": 10, "rate": 1.0}
+          }
+        },
+        "inflation": {
+          "total_events": 28,
+          "mentions": 22,
+          "base_rate": 0.786,
+          "contexts": {
+            "regular": {"total": 18, "mentions": 13, "rate": 0.722},
+            "focused": {"total": 10, "mentions": 9, "rate": 0.9}
+          }
+        },
+        "rate cut": {
+          "total_events": 20,
+          "mentions": 12,
+          "base_rate": 0.60,
+          "contexts": {
+            "regular": {"total": 14, "mentions": 7, "rate": 0.5},
+            "focused": {"total": 6, "mentions": 5, "rate": 0.833}
+          }
+        },
+        "recession": {
+          "total_events": 15,
+          "mentions": 4,
+          "base_rate": 0.267,
+          "contexts": {
+            "regular": {"total": 10, "mentions": 2, "rate": 0.2},
+            "focused": {"total": 5, "mentions": 2, "rate": 0.4}
+          }
+        }
+      }
+    },
+    {
+      "name": "Elon Musk",
+      "keywords": {
+        "dogecoin": {
+          "total_events": 15,
+          "mentions": 8,
+          "base_rate": 0.533,
+          "contexts": {
+            "regular": {"total": 10, "mentions": 4, "rate": 0.4},
+            "focused": {"total": 5, "mentions": 4, "rate": 0.8}
+          }
+        },
+        "tesla": {
+          "total_events": 25,
+          "mentions": 18,
+          "base_rate": 0.72,
+          "contexts": {
+            "regular": {"total": 17, "mentions": 11, "rate": 0.647},
+            "focused": {"total": 8, "mentions": 7, "rate": 0.875}
+          }
+        },
+        "spacex": {
+          "total_events": 20,
+          "mentions": 12,
+          "base_rate": 0.60,
+          "contexts": {
+            "regular": {"total": 14, "mentions": 7, "rate": 0.5},
+            "focused": {"total": 6, "mentions": 5, "rate": 0.833}
+          }
+        },
+        "ai": {
+          "total_events": 22,
+          "mentions": 14,
+          "base_rate": 0.636,
+          "contexts": {
+            "regular": {"total": 15, "mentions": 8, "rate": 0.533},
+            "focused": {"total": 7, "mentions": 6, "rate": 0.857}
+          }
+        }
+      }
+    },
+    {
+      "name": "Joe Biden",
+      "keywords": {
+        "climate": {
+          "total_events": 20,
+          "mentions": 15,
+          "base_rate": 0.75,
+          "contexts": {
+            "regular": {"total": 14, "mentions": 10, "rate": 0.714},
+            "focused": {"total": 6, "mentions": 5, "rate": 0.833}
+          }
+        },
+        "healthcare": {
+          "total_events": 18,
+          "mentions": 12,
+          "base_rate": 0.667,
+          "contexts": {
+            "regular": {"total": 12, "mentions": 7, "rate": 0.583},
+            "focused": {"total": 6, "mentions": 5, "rate": 0.833}
+          }
+        },
+        "student loan": {
+          "total_events": 12,
+          "mentions": 8,
+          "base_rate": 0.667,
+          "contexts": {
+            "regular": {"total": 8, "mentions": 5, "rate": 0.625},
+            "focused": {"total": 4, "mentions": 3, "rate": 0.75}
+          }
+        }
+      }
+    },
+    {
+      "name": "Narendra Modi",
+      "keywords": {
+        "kashmir": {
+          "total_events": 15,
+          "mentions": 6,
+          "base_rate": 0.40,
+          "contexts": {
+            "regular": {"total": 10, "mentions": 3, "rate": 0.3},
+            "focused": {"total": 5, "mentions": 3, "rate": 0.6}
+          }
+        },
+        "china": {
+          "total_events": 18,
+          "mentions": 7,
+          "base_rate": 0.389,
+          "contexts": {
+            "regular": {"total": 12, "mentions": 4, "rate": 0.333},
+            "focused": {"total": 6, "mentions": 3, "rate": 0.5}
+          }
+        }
+      }
+    },
+    {
+      "name": "Vladimir Putin",
+      "keywords": {
+        "nato": {
+          "total_events": 30,
+          "mentions": 22,
+          "base_rate": 0.733,
+          "contexts": {
+            "regular": {"total": 20, "mentions": 14, "rate": 0.7},
+            "focused": {"total": 10, "mentions": 8, "rate": 0.8}
+          }
+        },
+        "ukraine": {
+          "total_events": 28,
+          "mentions": 25,
+          "base_rate": 0.893,
+          "contexts": {
+            "regular": {"total": 18, "mentions": 16, "rate": 0.889},
+            "focused": {"total": 10, "mentions": 9, "rate": 0.9}
+          }
+        },
+        "nuclear": {
+          "total_events": 20,
+          "mentions": 10,
+          "base_rate": 0.50,
+          "contexts": {
+            "regular": {"total": 14, "mentions": 6, "rate": 0.429},
+            "focused": {"total": 6, "mentions": 4, "rate": 0.667}
+          }
+        }
+      }
+    },
+    {
+      "name": "Kim Jong Un",
+      "keywords": {
+        "nuclear": {
+          "total_events": 25,
+          "mentions": 20,
+          "base_rate": 0.80,
+          "contexts": {
+            "regular": {"total": 17, "mentions": 13, "rate": 0.765},
+            "focused": {"total": 8, "mentions": 7, "rate": 0.875}
+          }
+        },
+        "missile": {
+          "total_events": 22,
+          "mentions": 16,
+          "base_rate": 0.727,
+          "contexts": {
+            "regular": {"total": 15, "mentions": 10, "rate": 0.667},
+            "focused": {"total": 7, "mentions": 6, "rate": 0.857}
+          }
+        }
+      }
+    }
+  ]
+}

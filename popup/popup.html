@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polymarket Assistant</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <header class="popup-header">
+            <div class="logo">
+                <span class="logo-icon">🎯</span>
+                <h1>Polymarket Assistant</h1>
+            </div>
+        </header>
+        
+        <main class="popup-content">
+            <section class="feature-section">
+                <h2>Features</h2>
+                <div class="feature-list">
+                    <div class="feature-item active">
+                        <span class="feature-icon">📊</span>
+                        <div class="feature-info">
+                            <span class="feature-name">Base Rate Display</span>
+                            <span class="feature-status">Active</span>
+                        </div>
+                    </div>
+                    <div class="feature-item active">
+                        <span class="feature-icon">🔍</span>
+                        <div class="feature-info">
+                            <span class="feature-name">Strategy Filter</span>
+                            <span class="feature-status">Active</span>
+                        </div>
+                    </div>
+                    <div class="feature-item active">
+                        <span class="feature-icon">💰</span>
+                        <div class="feature-info">
+                            <span class="feature-name">Risk Dashboard</span>
+                            <span class="feature-status">Active</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="stats-section">
+                <h2>Quick Stats</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="speaker-count">7</span>
+                        <span class="stat-label">Speakers</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="keyword-count">22</span>
+                        <span class="stat-label">Keywords</span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="settings-section">
+                <h2>Settings</h2>
+                <div class="setting-item">
+                    <label for="probability-gap">Min Probability Gap</label>
+                    <select id="probability-gap">
+                        <option value="0.10">10%</option>
+                        <option value="0.15" selected>15%</option>
+                        <option value="0.20">20%</option>
+                        <option value="0.25">25%</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <label for="notifications">Notifications</label>
+                    <label class="toggle">
+                        <input type="checkbox" id="notifications" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </section>
+            
+            <section class="action-section">
+                <button class="btn btn-primary" id="open-dashboard">Open Dashboard</button>
+                <button class="btn btn-secondary" id="refresh-data">Refresh Data</button>
+            </section>
+        </main>
+        
+        <footer class="popup-footer">
+            <span>v1.0.0</span>
+            <a href="#" id="help-link">Help</a>
+        </footer>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
