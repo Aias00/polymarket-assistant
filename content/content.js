@@ -88,6 +88,73 @@
         return null;
     }
 
+    function formatPercent(value) {
+        return `${(value * 100).toFixed(1)}%`;
+    }
+
+    /**
+     * Summarize market strategy based on base rate gap.
+     */
+    function getStrategySummary(baseRate, currentProb, minGap) {
+        if (currentProb === null || baseRate === null) {
+            return {
+                direction: 'HOLD',
+                confidence: 0.5,
+                risk: 'MEDIUM',
+                edge: 0,
+                signals: [
+                    { label: 'Base Rate Gap', value: 'N/A' },
+                    { label: 'Momentum', value: 'N/A' }
+                ]
+            };
+        }
+
+        const gap = baseRate - currentProb;
+        let direction = 'HOLD';
+        let confidence = 0.55;
+
+        if (gap > minGap) {
+            direction = 'YES';
+            confidence += 0.2;
+        } else if (gap < -minGap) {
+            direction = 'NO';
+            confidence += 0.2;
+        }
+
+        const risk = Math.abs(gap) >= 0.2 ? 'LOW' : Math.abs(gap) >= 0.1 ? 'MEDIUM' : 'HIGH';
+
+        return {
+            direction,
+            confidence: Math.min(0.9, Math.max(0.4, confidence)),
+            risk,
+            edge: gap,
+            signals: [
+                { label: 'Base Rate Gap', value: `${gap >= 0 ? '+' : ''}${formatPercent(gap)}` },
+                { label: 'Market Price', value: formatPercent(currentProb) }
+            ]
+        };
+    }
+
+    /**
+     * Calculate risk metrics using Kelly criterion.
+     */
+    function calculateRisk(probability, price, investment) {
+        const payoutMultiple = 1 / price;
+        const winAmount = investment * (payoutMultiple - 1);
+        const expectedValue = probability * winAmount - (1 - probability) * investment;
+        const kelly = (probability * payoutMultiple - 1) / (payoutMultiple - 1);
+        const kellyPercent = Math.max(0, kelly) * 100;
+        const edge = probability - price;
+        const risk = edge >= 0.2 ? 'LOW' : edge >= 0.1 ? 'MEDIUM' : 'HIGH';
+
+        return {
+            winAmount,
+            expectedValue,
+            kellyPercent,
+            risk
+        };
+    }
+
     function createShadowContainer() {
         const container = document.createElement('div');
         container.id = 'polymarket-assistant-widget';
@@ -162,8 +229,37 @@
             </div>
         ` : '';
         
+        const strategy = getStrategySummary(baseRate, currentProb, CONFIG.probabilityGapMin);
+
+        const riskSectionHtml = currentProb !== null ? `
+            <div class="risk-section">
+                <div class="risk-row"><span>Risk Calculator</span><strong id="pma-risk-level">--</strong></div>
+                <div class="risk-form">
+                    <input class="risk-input" id="pma-risk-prob" type="number" min="1" max="99" value="${(currentProb * 100).toFixed(0)}">
+                    <input class="risk-input" id="pma-risk-price" type="number" min="1" max="99" value="${(currentProb * 100).toFixed(0)}">
+                    <input class="risk-input" id="pma-risk-invest" type="number" min="1" value="100">
+                </div>
+                <button class="risk-button" id="pma-risk-run">Calculate</button>
+                <div class="risk-row"><span>Potential Profit</span><strong id="pma-risk-win">$0.00</strong></div>
+                <div class="risk-row"><span>Expected Value</span><strong id="pma-risk-ev">$0.00</strong></div>
+                <div class="risk-row"><span>Kelly Position</span><strong id="pma-risk-kelly">0%</strong></div>
+            </div>
+        ` : '';
+
         container.innerHTML = `
             <style>
+                :host {
+                    --bg-primary: #0a0e27;
+                    --bg-secondary: #1a1f3a;
+                    --bg-card: #1e2442;
+                    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                    --gradient-danger: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+                    --text-primary: #ffffff;
+                    --text-secondary: #a0aec0;
+                    --text-muted: #718096;
+                    --border-color: #2d3748;
+                }
                 * {
                     margin: 0;
                     padding: 0;
@@ -171,201 +267,265 @@
                 }
                 .widget {
                     position: fixed;
-                    top: 100px;
+                    top: 96px;
                     right: 20px;
-                    width: 320px;
-                    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+                    width: 340px;
+                    background: linear-gradient(145deg, #1e2442, #151a30);
                     border-radius: 16px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+                    font-family: \"Space Grotesk\", \"IBM Plex Sans\", \"Manrope\", \"Segoe UI\", sans-serif;
                     z-index: 999999;
                     overflow: hidden;
+                    color: var(--text-primary);
                 }
                 .widget-header {
-                    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+                    background: var(--gradient-primary);
                     padding: 16px 20px;
                     display: flex;
+                    justify-content: space-between;
                     align-items: center;
-                    gap: 10px;
-                }
-                .widget-header-icon {
-                    font-size: 20px;
                 }
                 .widget-header-title {
-                    color: white;
                     font-size: 16px;
                     font-weight: 600;
                 }
+                .live-pill {
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    color: #38ef7d;
+                    animation: pulse 2s infinite;
+                }
                 .widget-body {
-                    padding: 20px;
+                    padding: 18px 20px 20px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 14px;
                 }
                 .match-info {
-                    margin-bottom: 16px;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 10px;
                 }
                 .match-item {
-                    display: flex;
-                    justify-content: space-between;
-                    margin-bottom: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border-radius: 10px;
+                    padding: 10px 12px;
                 }
                 .match-label {
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-muted);
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.8px;
                 }
                 .match-value {
-                    color: #e2e8f0;
+                    color: var(--text-primary);
                     font-size: 13px;
-                    font-weight: 500;
+                    font-weight: 600;
+                    margin-top: 6px;
                 }
                 .base-rate-section {
-                    background: rgba(99, 102, 241, 0.1);
+                    background: rgba(102, 126, 234, 0.12);
                     border-radius: 12px;
-                    padding: 16px;
-                    margin-bottom: 16px;
+                    padding: 14px;
+                    border: 1px solid rgba(102, 126, 234, 0.3);
                 }
                 .base-rate-main {
-                    font-size: 32px;
+                    font-size: 28px;
                     font-weight: 700;
-                    color: #818cf8;
-                    margin-bottom: 8px;
+                    color: #c3d0ff;
                 }
                 .base-rate-details {
                     font-size: 12px;
-                    color: #94a3b8;
+                    color: var(--text-secondary);
+                    margin-top: 6px;
                 }
                 .contexts {
-                    margin-top: 12px;
-                    padding-top: 12px;
+                    margin-top: 10px;
+                    padding-top: 10px;
                     border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    display: grid;
+                    gap: 6px;
                 }
                 .context-item {
                     display: flex;
                     justify-content: space-between;
-                    font-size: 12px;
-                    margin-bottom: 4px;
+                    font-size: 11px;
                 }
                 .context-label {
-                    color: #64748b;
+                    color: var(--text-muted);
                 }
                 .context-value {
-                    color: #94a3b8;
+                    color: var(--text-secondary);
                 }
-                .current-market {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px 16px;
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 8px;
-                    margin-bottom: 16px;
+                .snapshot {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 10px;
                 }
-                .market-label {
-                    color: #94a3b8;
-                    font-size: 13px;
+                .snapshot-card {
+                    background: rgba(255, 255, 255, 0.04);
+                    border-radius: 10px;
+                    padding: 10px 12px;
                 }
-                .market-value {
-                    color: #e2e8f0;
-                    font-size: 18px;
+                .snapshot-label {
+                    font-size: 11px;
+                    color: var(--text-muted);
+                }
+                .snapshot-value {
+                    font-size: 16px;
                     font-weight: 600;
-                }
-                .gap-section {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 12px 16px;
-                    background: rgba(255, 255, 255, 0.05);
-                    border-radius: 8px;
-                    margin-bottom: 16px;
-                }
-                .gap-label {
-                    color: #94a3b8;
-                    font-size: 13px;
-                }
-                .gap-value {
-                    font-size: 20px;
-                    font-weight: 700;
+                    margin-top: 4px;
                 }
                 .gap-positive {
-                    color: #34d399;
+                    color: #38ef7d;
                 }
                 .gap-negative {
                     color: #f87171;
                 }
-                .gap-neutral {
-                    color: #94a3b8;
+                .strategy-section {
+                    background: rgba(255, 255, 255, 0.03);
+                    border-radius: 12px;
+                    padding: 12px;
                 }
-                .recommendation {
-                    padding: 14px 16px;
-                    border-radius: 10px;
-                    text-align: center;
+                .strategy-header {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: 10px;
+                }
+                .strategy-title {
+                    font-size: 13px;
                     font-weight: 600;
-                    font-size: 14px;
                 }
-                .recommendation-buy {
-                    background: linear-gradient(135deg, rgba(52, 211, 153, 0.2), rgba(16, 185, 129, 0.2));
-                    color: #34d399;
-                    border: 1px solid rgba(52, 211, 153, 0.3);
+                .strategy-pill {
+                    padding: 4px 10px;
+                    border-radius: 999px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    background: var(--gradient-success);
                 }
-                .recommendation-sell {
-                    background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(239, 68, 68, 0.2));
-                    color: #f87171;
-                    border: 1px solid rgba(248, 113, 113, 0.3);
+                .strategy-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 8px;
                 }
-                .recommendation-neutral {
-                    background: rgba(255, 255, 255, 0.05);
-                    color: #94a3b8;
-                    border: 1px solid rgba(255, 255, 255, 0.1);
+                .strategy-item {
+                    font-size: 11px;
+                    color: var(--text-secondary);
+                    background: rgba(255, 255, 255, 0.04);
+                    border-radius: 8px;
+                    padding: 8px;
+                }
+                .strategy-item strong {
+                    display: block;
+                    color: var(--text-primary);
+                    margin-top: 4px;
+                    font-size: 13px;
+                }
+                .risk-section {
+                    background: rgba(255, 255, 255, 0.04);
+                    border-radius: 12px;
+                    padding: 12px;
+                }
+                .risk-row {
+                    display: flex;
+                    justify-content: space-between;
+                    font-size: 12px;
+                    color: var(--text-secondary);
+                }
+                .risk-row strong {
+                    color: var(--text-primary);
+                }
+                .risk-form {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    gap: 8px;
+                    margin: 10px 0;
+                }
+                .risk-input {
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    border-radius: 8px;
+                    padding: 6px 8px;
+                    color: var(--text-primary);
+                    font-size: 11px;
+                }
+                .risk-button {
+                    width: 100%;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 10px;
+                    font-size: 11px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    background: var(--gradient-primary);
+                    color: white;
                 }
                 .no-data {
                     text-align: center;
                     padding: 20px;
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-size: 12px;
+                }
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; }
+                    50% { opacity: 0.5; }
                 }
             </style>
-            
+
             <div class="widget">
                 <div class="widget-header">
-                    <span class="widget-header-icon">📊</span>
-                    <span class="widget-header-title">Base Rate Analysis</span>
+                    <span class="widget-header-title">Market Intelligence</span>
+                    <span class="live-pill">Live</span>
                 </div>
                 <div class="widget-body">
                     <div class="match-info">
                         <div class="match-item">
-                            <span class="match-label">Speaker:</span>
-                            <span class="match-value">${match.speaker}</span>
+                            <div class="match-label">Speaker</div>
+                            <div class="match-value">${match.speaker}</div>
                         </div>
                         <div class="match-item">
-                            <span class="match-label">Keyword:</span>
-                            <span class="match-value">"${match.keyword}"</span>
+                            <div class="match-label">Keyword</div>
+                            <div class="match-value">${match.keyword ? `"${match.keyword}"` : 'N/A'}</div>
                         </div>
                     </div>
-                    
+
                     ${match.data ? `
                         <div class="base-rate-section">
-                            <div class="base-rate-main">${(baseRate * 100).toFixed(1)}%</div>
+                            <div class="base-rate-main">${formatPercent(baseRate)}</div>
                             <div class="base-rate-details">Base Rate (${match.data.mentions}/${match.data.total_events} events)</div>
                             ${contextsHtml}
                         </div>
-                        
+
                         ${currentProb !== null ? `
-                            <div class="current-market">
-                                <span class="market-label">Current Market</span>
-                                <span class="market-value">${(currentProb * 100).toFixed(1)}%</span>
+                            <div class="snapshot">
+                                <div class="snapshot-card">
+                                    <div class="snapshot-label">Current Market</div>
+                                    <div class="snapshot-value">${formatPercent(currentProb)}</div>
+                                </div>
+                                <div class="snapshot-card">
+                                    <div class="snapshot-label">Probability Gap</div>
+                                    <div class="snapshot-value ${gapClass}">${gapDisplay}</div>
+                                </div>
                             </div>
-                            
-                            <div class="gap-section">
-                                <span class="gap-label">Probability Gap</span>
-                                <span class="gap-value ${gapClass}">${gapDisplay}</span>
+                        ` : ''}
+
+                        <div class="strategy-section">
+                            <div class="strategy-header">
+                                <span class="strategy-title">Strategy Signals</span>
+                                <span class="strategy-pill">${strategy.direction}</span>
                             </div>
-                            
-                            <div class="recommendation ${recommendationClass}">
-                                ${recommendation}
+                            <div class="strategy-grid">
+                                <div class="strategy-item">Confidence<strong>${(strategy.confidence * 100).toFixed(0)}%</strong></div>
+                                <div class="strategy-item">Risk Level<strong>${strategy.risk}</strong></div>
+                                ${strategy.signals.map(signal => `
+                                    <div class="strategy-item">${signal.label}<strong>${signal.value}</strong></div>
+                                `).join('')}
                             </div>
-                        ` : `
-                            <div class="no-data">
-                                Could not detect current market price
-                            </div>
-                        `}
+                        </div>
+
+                        ${riskSectionHtml}
                     ` : `
                         <div class="no-data">
                             Speaker detected but no matching keyword data
@@ -374,8 +534,35 @@
                 </div>
             </div>
         `;
+
+        if (currentProb !== null) {
+            setupRiskCalculator(shadow);
+        }
         
         console.log('[Polymarket Assistant] Base Rate widget injected');
+    }
+
+    function setupRiskCalculator(shadow) {
+        const button = shadow.querySelector('#pma-risk-run');
+        if (!button) return;
+
+        const run = () => {
+            const probability = Number(shadow.querySelector('#pma-risk-prob').value) / 100;
+            const price = Number(shadow.querySelector('#pma-risk-price').value) / 100;
+            const investment = Number(shadow.querySelector('#pma-risk-invest').value);
+
+            if (!probability || !price || !investment) return;
+
+            const result = calculateRisk(probability, price, investment);
+
+            shadow.querySelector('#pma-risk-win').textContent = `$${result.winAmount.toFixed(2)}`;
+            shadow.querySelector('#pma-risk-ev').textContent = `${result.expectedValue >= 0 ? '+' : ''}$${result.expectedValue.toFixed(2)}`;
+            shadow.querySelector('#pma-risk-kelly').textContent = `${result.kellyPercent.toFixed(1)}%`;
+            shadow.querySelector('#pma-risk-level').textContent = result.risk;
+        };
+
+        button.addEventListener('click', run);
+        run();
     }
 
     function injectFilterToolbar() {
@@ -397,6 +584,12 @@
         
         toolbarContainer.innerHTML = `
             <style>
+                :host {
+                    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    --text-primary: #ffffff;
+                    --text-secondary: #a0aec0;
+                    --text-muted: #718096;
+                }
                 * {
                     margin: 0;
                     padding: 0;
@@ -404,30 +597,31 @@
                 }
                 .filter-toolbar {
                     position: fixed;
-                    top: 60px;
+                    top: 64px;
                     left: 50%;
                     transform: translateX(-50%);
-                    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
-                    border-radius: 12px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-                    padding: 16px 24px;
+                    background: linear-gradient(145deg, #1e2442, #151a30);
+                    border-radius: 14px;
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+                    padding: 14px 20px;
                     display: flex;
                     align-items: center;
-                    gap: 20px;
+                    gap: 16px;
                     z-index: 999999;
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    font-family: \"Space Grotesk\", \"IBM Plex Sans\", \"Manrope\", \"Segoe UI\", sans-serif;
+                    border: 1px solid rgba(255, 255, 255, 0.06);
                 }
                 .filter-title {
-                    color: #e2e8f0;
+                    color: var(--text-primary);
                     font-weight: 600;
-                    font-size: 14px;
+                    font-size: 13px;
                     display: flex;
                     align-items: center;
                     gap: 8px;
                 }
                 .filter-group {
                     display: flex;
-                    gap: 12px;
+                    gap: 10px;
                 }
                 .filter-checkbox {
                     display: flex;
@@ -436,52 +630,53 @@
                     cursor: pointer;
                 }
                 .filter-checkbox input {
-                    width: 16px;
-                    height: 16px;
-                    accent-color: #6366f1;
+                    width: 14px;
+                    height: 14px;
+                    accent-color: #667eea;
                     cursor: pointer;
                 }
                 .filter-checkbox label {
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-size: 12px;
                     cursor: pointer;
                     user-select: none;
                 }
                 .filter-checkbox:hover label {
-                    color: #e2e8f0;
+                    color: var(--text-primary);
                 }
                 .filter-btn {
-                    padding: 8px 16px;
-                    border-radius: 6px;
+                    padding: 7px 14px;
+                    border-radius: 8px;
                     border: none;
-                    font-size: 13px;
-                    font-weight: 500;
+                    font-size: 12px;
+                    font-weight: 600;
                     cursor: pointer;
-                    transition: all 0.2s;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
                 }
                 .filter-btn-apply {
-                    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+                    background: var(--gradient-primary);
                     color: white;
+                    box-shadow: 0 8px 18px rgba(102, 126, 234, 0.35);
                 }
                 .filter-btn-apply:hover {
-                    opacity: 0.9;
+                    transform: translateY(-1px);
                 }
                 .filter-btn-reset {
-                    background: rgba(255, 255, 255, 0.1);
-                    color: #94a3b8;
+                    background: rgba(255, 255, 255, 0.08);
+                    color: var(--text-secondary);
                 }
                 .filter-btn-reset:hover {
-                    background: rgba(255, 255, 255, 0.15);
-                    color: #e2e8f0;
+                    background: rgba(255, 255, 255, 0.16);
+                    color: var(--text-primary);
                 }
                 .filter-results {
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-muted);
+                    font-size: 12px;
                     padding-left: 12px;
                     border-left: 1px solid rgba(255, 255, 255, 0.1);
                 }
                 .market-highlight {
-                    outline: 2px solid #6366f1 !important;
+                    outline: 2px solid #667eea !important;
                     outline-offset: 2px;
                     border-radius: 8px;
                 }
@@ -503,7 +698,7 @@
                     </div>
                     <div class="filter-checkbox">
                         <input type="checkbox" id="pma-filter-liquidity">
-                        <label for="pma-filter-liquidity">High Liquidity (>$5k)</label>
+                        <label for="pma-filter-liquidity">Liquidity > $5k</label>
                     </div>
                 </div>
                 <button class="filter-btn filter-btn-apply" id="pma-apply-filter">Apply</button>
@@ -608,6 +803,12 @@
         
         dashboardContainer.innerHTML = `
             <style>
+                :host {
+                    --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+                    --text-primary: #ffffff;
+                    --text-secondary: #a0aec0;
+                    --text-muted: #718096;
+                }
                 * {
                     margin: 0;
                     padding: 0;
@@ -615,115 +816,109 @@
                 }
                 .dashboard {
                     position: fixed;
-                    top: 100px;
+                    top: 96px;
                     right: 20px;
                     width: 340px;
-                    background: linear-gradient(145deg, #1a1a2e 0%, #16213e 100%);
+                    background: linear-gradient(145deg, #1e2442, #151a30);
                     border-radius: 16px;
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+                    font-family: \"Space Grotesk\", \"IBM Plex Sans\", \"Manrope\", \"Segoe UI\", sans-serif;
                     z-index: 999999;
                     overflow: hidden;
+                    color: var(--text-primary);
                 }
                 .dashboard-header {
-                    background: linear-gradient(90deg, #10b981, #059669);
+                    background: var(--gradient-success);
                     padding: 16px 20px;
                     display: flex;
                     align-items: center;
-                    gap: 10px;
+                    justify-content: space-between;
                 }
                 .dashboard-title {
-                    color: white;
-                    font-size: 16px;
+                    font-size: 15px;
                     font-weight: 600;
                 }
                 .dashboard-body {
-                    padding: 20px;
+                    padding: 18px 20px 20px;
                 }
                 .balance-section {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    margin-bottom: 20px;
+                    margin-bottom: 16px;
                 }
                 .balance-label {
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-size: 12px;
                 }
                 .balance-value {
-                    color: #e2e8f0;
-                    font-size: 24px;
+                    color: var(--text-primary);
+                    font-size: 22px;
                     font-weight: 700;
                 }
                 .exposure-section {
                     background: rgba(255, 255, 255, 0.05);
                     border-radius: 10px;
-                    padding: 14px 16px;
-                    margin-bottom: 20px;
+                    padding: 12px 14px;
+                    margin-bottom: 16px;
                 }
                 .exposure-header {
                     display: flex;
                     justify-content: space-between;
-                    margin-bottom: 8px;
+                    margin-bottom: 6px;
                 }
                 .exposure-label {
-                    color: #94a3b8;
-                    font-size: 13px;
+                    color: var(--text-secondary);
+                    font-size: 12px;
                 }
                 .exposure-value {
-                    font-size: 16px;
-                    font-weight: 600;
-                }
-                .exposure-warning {
-                    color: #f59e0b;
-                }
-                .exposure-danger {
-                    color: #ef4444;
-                }
-                .exposure-safe {
-                    color: #34d399;
-                }
-                .positions-title {
-                    color: #e2e8f0;
                     font-size: 14px;
                     font-weight: 600;
-                    margin-bottom: 12px;
+                }
+                .exposure-warning { color: #fbbf24; }
+                .exposure-danger { color: #f87171; }
+                .exposure-safe { color: #38ef7d; }
+                .positions-title {
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    font-weight: 600;
+                    margin-bottom: 10px;
                 }
                 .position-item {
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
-                    padding: 10px 12px;
+                    padding: 8px 10px;
                     background: rgba(255, 255, 255, 0.03);
                     border-radius: 8px;
                     margin-bottom: 8px;
+                    font-size: 12px;
                 }
                 .position-name {
-                    color: #e2e8f0;
-                    font-size: 13px;
+                    color: var(--text-primary);
                 }
                 .position-details {
                     text-align: right;
                 }
                 .position-amount {
-                    color: #94a3b8;
-                    font-size: 12px;
+                    color: var(--text-secondary);
+                    font-size: 11px;
                 }
                 .position-percent {
-                    font-size: 14px;
+                    font-size: 12px;
                     font-weight: 600;
                 }
-                .position-safe { color: #34d399; }
-                .position-warning { color: #f59e0b; }
-                .position-danger { color: #ef4444; }
+                .position-safe { color: #38ef7d; }
+                .position-warning { color: #fbbf24; }
+                .position-danger { color: #f87171; }
                 .alert-box {
                     background: rgba(245, 158, 11, 0.15);
                     border: 1px solid rgba(245, 158, 11, 0.3);
                     border-radius: 8px;
-                    padding: 12px;
-                    margin-top: 16px;
+                    padding: 10px;
+                    margin-top: 12px;
                     color: #fbbf24;
-                    font-size: 13px;
+                    font-size: 12px;
                 }
                 .alert-box.danger {
                     background: rgba(239, 68, 68, 0.15);
@@ -732,16 +927,16 @@
                 }
                 .no-positions {
                     text-align: center;
-                    color: #64748b;
-                    font-size: 13px;
-                    padding: 20px;
+                    color: var(--text-muted);
+                    font-size: 12px;
+                    padding: 16px;
                 }
             </style>
             
             <div class="dashboard">
                 <div class="dashboard-header">
-                    <span>💰</span>
                     <span class="dashboard-title">Portfolio Risk Dashboard</span>
+                    <span>Live</span>
                 </div>
                 <div class="dashboard-body">
                     <div class="balance-section">

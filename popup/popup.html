@@ -3,91 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Polymarket Assistant</title>
+    <title>Polymarket Strategy Assistant</title>
     <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-    <div class="popup-container">
+    <div class="popup-shell">
         <header class="popup-header">
-            <div class="logo">
-                <span class="logo-icon">🎯</span>
-                <h1>Polymarket Assistant</h1>
+            <div class="brand">
+                <div class="brand-mark">PM</div>
+                <div>
+                    <h1>Strategy Assistant</h1>
+                    <div class="brand-subtitle">Market Intelligence Suite</div>
+                </div>
+            </div>
+            <div class="header-meta">
+                <span class="live-indicator" id="live-indicator">Live</span>
+                <span class="update-time" id="last-updated">Updated just now</span>
             </div>
         </header>
-        
+
         <main class="popup-content">
-            <section class="feature-section">
-                <h2>Features</h2>
-                <div class="feature-list">
-                    <div class="feature-item active">
-                        <span class="feature-icon">📊</span>
-                        <div class="feature-info">
-                            <span class="feature-name">Base Rate Display</span>
-                            <span class="feature-status">Active</span>
-                        </div>
+            <section class="card card-market" aria-live="polite">
+                <div class="card-header">
+                    <div>
+                        <h2>Hot Markets</h2>
+                        <p class="card-subtitle">Real-time snapshot every 30 seconds</p>
                     </div>
-                    <div class="feature-item active">
-                        <span class="feature-icon">🔍</span>
-                        <div class="feature-info">
-                            <span class="feature-name">Strategy Filter</span>
-                            <span class="feature-status">Active</span>
-                        </div>
-                    </div>
-                    <div class="feature-item active">
-                        <span class="feature-icon">💰</span>
-                        <div class="feature-info">
-                            <span class="feature-name">Risk Dashboard</span>
-                            <span class="feature-status">Active</span>
-                        </div>
-                    </div>
+                    <button class="btn btn-ghost" id="refresh-data">Refresh</button>
                 </div>
+                <div class="market-list" id="market-list"></div>
             </section>
-            
-            <section class="stats-section">
-                <h2>Quick Stats</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <span class="stat-value" id="speaker-count">7</span>
-                        <span class="stat-label">Speakers</span>
+
+            <section class="card card-strategy">
+                <div class="card-header">
+                    <div>
+                        <h2>Strategy Recommender</h2>
+                        <p class="card-subtitle">Signals synthesized from momentum + base rate gap</p>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-value" id="keyword-count">22</span>
-                        <span class="stat-label">Keywords</span>
+                    <span class="badge badge-success" id="strategy-confidence">Confidence 0%</span>
+                </div>
+                <div class="strategy-main">
+                    <div>
+                        <div class="strategy-label">Recommended</div>
+                        <div class="strategy-value" id="strategy-direction">--</div>
+                    </div>
+                    <div>
+                        <div class="strategy-label">Risk Level</div>
+                        <div class="strategy-risk" id="strategy-risk">--</div>
+                    </div>
+                    <div>
+                        <div class="strategy-label">Edge</div>
+                        <div class="strategy-edge" id="strategy-edge">--</div>
                     </div>
                 </div>
+                <div class="strategy-signals" id="strategy-signals"></div>
+                <div class="strategy-footer" id="strategy-recommendation">Analyze markets to get a recommendation.</div>
             </section>
-            
-            <section class="settings-section">
-                <h2>Settings</h2>
-                <div class="setting-item">
-                    <label for="probability-gap">Min Probability Gap</label>
-                    <select id="probability-gap">
-                        <option value="0.10">10%</option>
-                        <option value="0.15" selected>15%</option>
-                        <option value="0.20">20%</option>
-                        <option value="0.25">25%</option>
-                    </select>
+
+            <section class="card card-risk">
+                <div class="card-header">
+                    <div>
+                        <h2>Risk Calculator</h2>
+                        <p class="card-subtitle">Kelly sizing + expected value</p>
+                    </div>
+                    <button class="btn btn-primary" id="calc-run">Calculate</button>
                 </div>
-                <div class="setting-item">
-                    <label for="notifications">Notifications</label>
-                    <label class="toggle">
-                        <input type="checkbox" id="notifications" checked>
-                        <span class="toggle-slider"></span>
+                <div class="risk-grid">
+                    <label class="input-field">
+                        <span>My Probability</span>
+                        <input type="number" id="calc-probability" min="1" max="99" value="65">
+                    </label>
+                    <label class="input-field">
+                        <span>Market Price</span>
+                        <input type="number" id="calc-price" min="1" max="99" value="52">
+                    </label>
+                    <label class="input-field">
+                        <span>Investment ($)</span>
+                        <input type="number" id="calc-investment" min="1" value="100">
                     </label>
                 </div>
+                <div class="risk-results">
+                    <div class="risk-item">
+                        <span>Potential Profit</span>
+                        <strong id="calc-win">$0.00</strong>
+                    </div>
+                    <div class="risk-item">
+                        <span>Potential Loss</span>
+                        <strong id="calc-loss">$0.00</strong>
+                    </div>
+                    <div class="risk-item">
+                        <span>Expected Value</span>
+                        <strong id="calc-ev">$0.00</strong>
+                    </div>
+                    <div class="risk-item">
+                        <span>Kelly Position</span>
+                        <strong id="calc-kelly">0%</strong>
+                    </div>
+                    <div class="risk-item">
+                        <span>Risk Level</span>
+                        <strong id="calc-risk">--</strong>
+                    </div>
+                </div>
             </section>
-            
-            <section class="action-section">
-                <button class="btn btn-primary" id="open-dashboard">Open Dashboard</button>
-                <button class="btn btn-secondary" id="refresh-data">Refresh Data</button>
+
+            <section class="card card-chart">
+                <div class="card-header">
+                    <div>
+                        <h2>Price Momentum</h2>
+                        <p class="card-subtitle">ETH reference curve from recent windows</p>
+                    </div>
+                    <select class="select" id="chart-range">
+                        <option value="7">7D</option>
+                        <option value="14">14D</option>
+                        <option value="30" selected>30D</option>
+                    </select>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="price-chart" width="280" height="140"></canvas>
+                    <div class="chart-tooltip" id="chart-tooltip"></div>
+                </div>
+            </section>
+
+            <section class="card card-positions">
+                <div class="card-header">
+                    <div>
+                        <h2>Position Tracker</h2>
+                        <p class="card-subtitle">Portfolio snapshot (local demo)</p>
+                    </div>
+                    <span class="badge badge-primary" id="position-pnl">+0%</span>
+                </div>
+                <div class="position-summary">
+                    <div>
+                        <span>Total Invested</span>
+                        <strong id="position-total">$0.00</strong>
+                    </div>
+                    <div>
+                        <span>Current Value</span>
+                        <strong id="position-value">$0.00</strong>
+                    </div>
+                </div>
+                <div class="position-list" id="position-list"></div>
+            </section>
+
+            <section class="card card-alerts">
+                <div class="card-header">
+                    <div>
+                        <h2>Price Alerts</h2>
+                        <p class="card-subtitle">Set thresholds with desktop notifications</p>
+                    </div>
+                    <span class="badge badge-warning">Beta</span>
+                </div>
+                <div class="alert-form">
+                    <select class="select" id="alert-market"></select>
+                    <select class="select" id="alert-condition">
+                        <option value=">=">Price ≥</option>
+                        <option value="<=">Price ≤</option>
+                    </select>
+                    <input class="input" id="alert-price" type="number" min="1" max="99" value="60">
+                    <button class="btn btn-primary" id="alert-add">Add</button>
+                </div>
+                <div class="alert-list" id="alert-list"></div>
+            </section>
+
+            <section class="card card-settings">
+                <div class="card-header">
+                    <div>
+                        <h2>Settings</h2>
+                        <p class="card-subtitle">Tuning + notifications</p>
+                    </div>
+                </div>
+                <div class="settings-grid">
+                    <label class="input-field">
+                        <span>Min Probability Gap</span>
+                        <select id="probability-gap">
+                            <option value="0.10">10%</option>
+                            <option value="0.15" selected>15%</option>
+                            <option value="0.20">20%</option>
+                            <option value="0.25">25%</option>
+                        </select>
+                    </label>
+                    <div class="toggle-field">
+                        <span>Notifications</span>
+                        <label class="toggle">
+                            <input type="checkbox" id="notifications" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="action-row">
+                <button class="btn btn-primary" id="open-dashboard">Open Polymarket</button>
+                <button class="btn btn-secondary" id="help-link">Help</button>
             </section>
         </main>
-        
+
         <footer class="popup-footer">
-            <span>v1.0.0</span>
-            <a href="#" id="help-link">Help</a>
+            <span>v2.0.0</span>
+            <span>Polymarket Strategy Suite</span>
         </footer>
     </div>
+
     <script src="popup.js"></script>
 </body>
 </html>
