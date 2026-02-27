@@ -565,8 +565,22 @@
         run();
     }
 
+    function removeFilterToolbar() {
+        const host = document.getElementById('pma-filter-host');
+        if (host) {
+            host.remove();
+        }
+    }
+
+    function removeRiskDashboard() {
+        const host = document.getElementById('pma-risk-host');
+        if (host) {
+            host.remove();
+        }
+    }
+
     function injectFilterToolbar() {
-        if (document.getElementById('pma-filter-toolbar')) {
+        if (document.getElementById('pma-filter-host')) {
             return;
         }
         
@@ -712,11 +726,19 @@
         const applyBtn = toolbarContainer.querySelector('#pma-apply-filter');
         const resetBtn = toolbarContainer.querySelector('#pma-reset-filter');
         const resultsEl = toolbarContainer.querySelector('#pma-filter-results');
+        const gapCheckbox = toolbarContainer.querySelector('#pma-filter-gap');
+        const speakerCheckbox = toolbarContainer.querySelector('#pma-filter-speaker');
+        const liquidityCheckbox = toolbarContainer.querySelector('#pma-filter-liquidity');
+
+        if (!applyBtn || !resetBtn || !resultsEl || !gapCheckbox || !speakerCheckbox || !liquidityCheckbox) {
+            console.warn('[Polymarket Assistant] Filter toolbar controls missing, skip binding');
+            return;
+        }
         
         applyBtn.addEventListener('click', () => {
-            const showGap = document.getElementById('pma-filter-gap').checked;
-            const showSpeaker = document.getElementById('pma-filter-speaker').checked;
-            const showLiquidity = document.getElementById('pma-filter-liquidity').checked;
+            const showGap = gapCheckbox.checked;
+            const showSpeaker = speakerCheckbox.checked;
+            const showLiquidity = liquidityCheckbox.checked;
             
             let count = 0;
             const marketCards = document.querySelectorAll('[class*="market"], [class*="card"]');
@@ -770,9 +792,9 @@
         });
         
         resetBtn.addEventListener('click', () => {
-            document.getElementById('pma-filter-gap').checked = false;
-            document.getElementById('pma-filter-speaker').checked = false;
-            document.getElementById('pma-filter-liquidity').checked = false;
+            gapCheckbox.checked = false;
+            speakerCheckbox.checked = false;
+            liquidityCheckbox.checked = false;
             resultsEl.textContent = '';
             
             document.querySelectorAll('.market-highlight').forEach(el => {
@@ -785,7 +807,7 @@
     }
 
     function injectRiskDashboard() {
-        if (document.getElementById('pma-risk-dashboard')) {
+        if (document.getElementById('pma-risk-host')) {
             return;
         }
         
@@ -968,15 +990,13 @@
         console.log('[Polymarket Assistant] Initializing...');
         
         loadSpeakerData().then(() => {
+            removeFilterToolbar();
+            removeRiskDashboard();
             const pageType = getCurrentPageType();
             console.log('[Polymarket Assistant] Page type:', pageType);
             
             if (pageType === 'market') {
                 setTimeout(injectBaseRateWidget, 1500);
-            } else if (pageType === 'homepage') {
-                setTimeout(injectFilterToolbar, 1500);
-            } else if (pageType === 'portfolio') {
-                setTimeout(injectRiskDashboard, 1500);
             }
         });
     }
@@ -989,13 +1009,11 @@
 
     window.addEventListener('popstate', () => {
         setTimeout(() => {
+            removeFilterToolbar();
+            removeRiskDashboard();
             const pageType = getCurrentPageType();
             if (pageType === 'market') {
                 injectBaseRateWidget();
-            } else if (pageType === 'homepage') {
-                injectFilterToolbar();
-            } else if (pageType === 'portfolio') {
-                injectRiskDashboard();
             }
         }, 1000);
     });

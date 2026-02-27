@@ -1,0 +1,26 @@
+{
+  "name": "polymarket-assistant",
+  "version": "1.0.0",
+  "description": "Polymarket Strategy Assistant Chrome extension",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "node scripts/build.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Aias00/polymarket-assistant.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Aias00/polymarket-assistant/issues"
+  },
+  "homepage": "https://github.com/Aias00/polymarket-assistant#readme",
+  "devDependencies": {
+    "esbuild": "^0.25.10"
+  }
+}

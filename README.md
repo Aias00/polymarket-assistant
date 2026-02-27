@@ -1,70 +1,59 @@
-<<<<<<< HEAD
-# polymarket-assistant
-=======
 # Polymarket Strategy Assistant
 
-A Chrome Extension that helps users make smarter decisions on Polymarket prediction markets.
+A Chrome extension that helps users make data-driven decisions on Polymarket prediction markets.
 
 ## Features
 
-### Base Rate Display (P0)
-- Automatically detects speaker-related markets on Polymarket
-- Shows historical Base Rate from local JSON data
-- Calculates probability gap (your probability vs market pricing)
-- Provides trading recommendations (Overpriced/Underpriced)
+- Base Rate analysis for speaker/keyword markets
+- Strategy recommendations from probability gap and momentum
+- Risk calculator with Kelly sizing and expected value
+- Market pulse, position tracker, and alert utilities in popup
 
-### Strategy Filter (P0)
-- Filter toolbar on Polymarket homepage
-- Filter by: Market Gap ≥15%, Speaker Markets, High Liquidity
-- Highlights matching markets
+## Tech Stack
 
-### Risk Dashboard (P1)
-- Displays on wallet/portfolio page
-- Shows position sizes with risk warnings
-- Alerts when position >5% or total exposure >15%
-
-## Installation
-
-1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable "Developer mode" in the top right corner
-3. Click "Load unpacked" button
-4. Select the `polymarket-assistant` folder
-5. The extension should now be installed and active
-
-## Usage
-
-### Base Rate Display
-1. Navigate to any Polymarket market page
-2. If the market contains a tracked speaker/keyword, the widget will automatically appear
-3. View the Base Rate analysis and probability gap
-4. Follow the trading recommendation
-
-### Strategy Filter
-1. Navigate to Polymarket homepage
-2. Use the filter toolbar to select criteria
-3. Click "Apply" to filter markets
-4. Matching markets will be highlighted
-
-### Risk Dashboard
-1. Navigate to your Polymarket portfolio/wallet page
-2. View your positions and risk exposure
-3. Watch for warning alerts
-
-## Data
-
-The extension uses local JSON data files:
-- `data/speakers.json` - Speaker and keyword historical data
-- `data/config.json` - Configuration settings
+- Chrome Extension Manifest V3
+- Plain JavaScript + CSS
+- `esbuild` for bundling and minification
 
 ## Development
 
-The extension is built with:
-- Manifest V3
-- Content Scripts for page injection
-- Shadow DOM for style isolation
-- Chrome Storage for settings
+### 1. Install dependencies
 
-## Version
+```bash
+npm install
+```
 
-1.0.0
->>>>>>> 6e2da1e (init)
+### 2. Build extension
+
+```bash
+npm run build
+```
+
+Build output goes to `dist/`.
+
+### 3. Load in Chrome
+
+1. Open `chrome://extensions/`
+2. Enable **Developer mode**
+3. Click **Load unpacked**
+4. Select `/Users/aias/Work/github/polymarket-assistant/dist`
+
+## Project Structure
+
+```text
+polymarket-assistant/
+├── background/
+├── content/
+├── data/
+├── icons/
+├── popup/
+├── scripts/
+│   └── build.mjs
+├── manifest.json
+└── package.json
+```
+
+## Notes
+
+- Source files remain in root feature folders (`background/`, `content/`, `popup/`).
+- Do not load source root directly in Chrome for normal development flow. Build first, then load `dist/`.

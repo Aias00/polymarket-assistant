@@ -220,6 +220,15 @@ h2 {
     border-color: rgba(102, 126, 234, 0.4);
 }
 
+.market-row-link {
+    cursor: pointer;
+}
+
+.market-row-link:focus-visible {
+    outline: 2px solid rgba(102, 126, 234, 0.8);
+    outline-offset: 2px;
+}
+
 .market-title {
     font-size: 12px;
     font-weight: 600;
@@ -460,7 +469,7 @@ h2 {
 
 .settings-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr;
     gap: 12px;
 }
 
@@ -521,7 +530,7 @@ h2 {
 
 .action-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 

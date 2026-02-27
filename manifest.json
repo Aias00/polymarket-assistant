@@ -3,13 +3,10 @@
   "name": "Polymarket Strategy Assistant",
   "version": "1.0.0",
   "description": "Data-driven trading assistant for Polymarket prediction markets",
-  "permissions": [
-    "storage",
-    "notifications",
-    "activeTab"
-  ],
   "host_permissions": [
-    "https://polymarket.com/*"
+    "https://polymarket.com/*",
+    "https://gamma-api.polymarket.com/*",
+    "https://api.coingecko.com/*"
   ],
   "content_scripts": [
     {

@@ -1,13 +1,5 @@
 chrome.runtime.onInstalled.addListener((details) => {
     console.log('[Polymarket Assistant] Extension installed:', details.reason);
-    
-    if (details.reason === 'install') {
-        chrome.storage.local.set({
-            probabilityGap: '0.15',
-            notifications: true,
-            firstInstall: true
-        });
-    }
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
